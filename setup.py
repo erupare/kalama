@@ -21,8 +21,7 @@ setuptools.setup(
     install_requires=[
         "aws-cdk.core",
         "aws-cdk.aws_s3",
-        "aws-cdk.aws_lambda",
-        "aws-cdk.aws_s3_notifications",
+        "aws-cdk.aws_cloudtrail",
     ],
 
     python_requires=">=3.6",
@@ -46,3 +45,4 @@ setuptools.setup(
         "Typing :: Typed",
     ],
 )
+

@@ -1,8 +1,7 @@
 from aws_cdk import (
     core,
     aws_s3,
-    aws_lambda,
-    aws_s3_notifications,
+    aws_cloudtrail,
 )
 
 class KalamaStack(core.Stack):
@@ -10,21 +9,15 @@ class KalamaStack(core.Stack):
     def __init__(self, scope: core.Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs) 
 
-        # The S3 bucket I'll drop new or updated PNG images into. This is where 
-        # the image handling workflow starts
+        # The start of the image pipeline
         imageBucket = aws_s3.Bucket(self, "imageBucket")
+        
+        # Capture API activity with a trail
+        imageBucketTrail = aws_cloudtrail.Trail(self, "imageBucketTrail",
+            is_multi_region_trail = False)
 
-        # A lambda function to collect some info about the image, name, 
-        # extension, etc
-        getImageInfoFunc = aws_lambda.Function(self, "getImageInfoFunc", 
-            code = aws_lambda.AssetCode('functions/getImageInfoFunc'),
-            handler = "lambda.handler",
-            runtime = aws_lambda.Runtime.PYTHON_3_6
-        )
-
-        # The trigger that will cause the Lambda function to be called when a 
-        # PNG file is put (or copied) into the bucket
-        imageBucket.add_object_created_notification(
-            aws_s3_notifications.LambdaDestination(getImageInfoFunc), 
-            aws_s3.NotificationKeyFilter(suffix='.png')
-        )
+        # Restrict to image bucket data-plane events
+        imageBucketTrail.add_s3_event_selector(
+            include_management_events = False,
+            prefixes = [f"{imageBucket.bucket_arn}/"],
+            read_write_type = aws_cloudtrail.ReadWriteType.WRITE_ONLY)
