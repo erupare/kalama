@@ -9,7 +9,7 @@ setuptools.setup(
     name="kalama",
     version="0.0.1",
 
-    description="An empty CDK Python app",
+    description="(re) Build awsgeek.com",
     long_description=long_description,
     long_description_content_type="text/markdown",
 
@@ -20,6 +20,9 @@ setuptools.setup(
 
     install_requires=[
         "aws-cdk.core",
+        "aws-cdk.aws_s3",
+        "aws-cdk.aws_lambda",
+        "aws-cdk.aws_s3_notifications",
     ],
 
     python_requires=">=3.6",
