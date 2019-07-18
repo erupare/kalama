@@ -1,12 +1,16 @@
-import json
+import os
+import datetime
 
 def handler(event, context):
+    
+    # Grab the interesting bits from the event
+    key = event['key']
 
-  for record in event['Records']:
+    head, tail = os.path.split(key)  
+    name, extension = tail.rsplit('.',2)
     
-    file = {
-      'bucket': record['s3']['bucket']['name'],
-      'key': record['s3']['object']['key'],
-    }
-    
-    print(json.dumps(file))        
+    return { 
+        'name': name,
+        'extension': extension, 
+        'timestamp': int(datetime.datetime.utcnow().timestamp()), 
+        'source': {'bucket': event['bucketName'], 'key': key}}
