@@ -1,8 +1,8 @@
 from aws_cdk import (
     core,
     aws_s3,
-    aws_lambda,
     aws_events,
+    aws_lambda,
     aws_cloudtrail,
     aws_stepfunctions,
     aws_events_targets,
@@ -42,11 +42,21 @@ class KalamaStack(core.Stack):
             handler = "lambda.handler",
             runtime = aws_lambda.Runtime.PYTHON_3_6)
 
+        # Results of file extension check
+        yesPng = aws_stepfunctions.Succeed(self, "Yes, a PNG")
+        notPng = aws_stepfunctions.Succeed(self, "Not a PNG")
+
+        # Verify the file extension
+        checkForPng = aws_stepfunctions.Choice(self, 'Is a PNG?')
+        checkForPng.when(aws_stepfunctions.Condition.string_equals('$.extension', 'png'), yesPng)
+        checkForPng.otherwise(notPng);
+
         # A single image pipeline job for testing
         getImageInfoJob = aws_stepfunctions.Task(self, 'Get image info', 
             task = aws_stepfunctions_tasks.InvokeFunction(getImageInfoFunc))
+        getImageInfoJob.next(checkForPng)
 
-        # Configure the image pipeline, a single job for now
+        # Configure the image pipeline and starting state
         imagePipeline = aws_stepfunctions.StateMachine(self, "imagePipeline",
             definition = getImageInfoJob)
 
