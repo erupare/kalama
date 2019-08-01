@@ -23,6 +23,7 @@ setuptools.setup(
         "aws-cdk.aws_s3",
         "aws-cdk.aws_lambda",
         "aws-cdk.aws_events",
+        "aws-cdk.aws_dynamodb",
         "aws-cdk.aws_cloudtrail",
         "aws-cdk.aws_stepfunctions",
         "aws-cdk.aws_events_targets",
